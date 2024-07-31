@@ -1,0 +1,72 @@
+Pentru parsarea json am folosit biblioteca nlohmann deoarece
+este usor de utilizat si pentru ca era printre optiunile
+recomandate in documentul temei.
+Am folosit urmatoarele fisiere puse la dispozitie
+de la laborator:
+
+-> buffer.cpp (buffer.hpp): Parte din scheletul de laborator
+
+-> helpers.cpp (helpers.hpp): Am modificat functia basic_extract_json_response 
+ca sa detecteze si array de json.
+
+-> requests.cpp (requests.hpp): In fisierele requests.cpp (si requests.hpp), 
+am adaugat doua functii noi: getStatusCode si getSessionCookie, care primesc un 
+pointer la un sir de caractere (mesajul de raspuns) si intorc codul de stare si 
+cookie-ul (sub forma de sir de caractere), respectiv. De asemenea, am implementat 
+functia compute_delete_request si am adaugat headerele corespunzatoare la 
+functiile din scheletul de cod.
+
+-> client.cpp:
+
+In string-urile globale sessionCookie si token retin
+cookie-ul de login, respectiv tokenul de acces in
+librarie pe care le golesc la logout pentru a 
+permite logarea cu un nou utilizator.
+
+* extract_json_error este o functie care primeste un 
+pointer catre un sir de caractere si returnează un 
+string care descrie eroarea de tip JSON intoarsă 
+de server (inclusiv cazul opțional de "Too many requests!").
+
+* print_response_message este o funcție care primește un pointer 
+catre șirul de caractere (mesajul intors de server) si un sir 
+de caractere care reprezinta mesajul afisat in caz de succes. 
+Aceasta afisează mesajul de succes sau mesajul de eroare 
+intors de server si returneaza codul de status.
+
+* Pentru comenzile register si login deschid conexiunea, iau
+credentialele (usernameul si parola) pe care le parsez json apoi
+trimit cererea de POST. Pentru login verific daca codul este
+bun si daca este initializez cookieul.
+
+* Pentru enter, imi fac requestul de GET cu cookieul curent, pe care 
+il trimit la server. Daca raspunsul primit este bun, imi salvez in 
+token: "Bearer + valoarea json a raspunsului"
+
+* La addBook imi fac o variabila json cu toti parametrii cartii,
+verific daca page_countul este un integer cu un bloc try/catch.
+Imi fac requestul de POST si il trimit la server.
+
+* Pentru getBooks imi fac requestul de GET, il trimit la server si
+verific daca codul de raspuns este bun, daca nu este inseamna ca
+nu exista carti, altfel imi parsez raspunsul json si printez id-ul
+si titlul cartii
+
+* Pentru getBook imi fac requestul de GET, iar la adresa cartiilor atasez
+id-ul cartii cautate, trimit catre server si daca raspunsul este unul
+bun imi parsez obiectul json si il printez
+
+* Pentru deleteBook, fac acelasi lucru ca la getBook, doar ca trimit un
+DELETE request in loc de GET.
+
+* Pentru logout imi fac requestul de GET, verific raspunsul primit, iar
+daca este bun imi sterg cookieul si tokenul
+
+* In main citesc de la tastatura cate o linie si parsez
+comanda, apeland functiile corespunzatoare care o implementeaza. 
+Daca comanda nu este recunoscuta afisez "UNKNOWN COMMAND!". 
+Daca clientul este logat deja, comenzile register si login vor 
+afisa eroare ("Already logged in!"), iar daca nu este logat comenzile 
+get_books, get_book, add_book, delete_book vor afisa "Not logged in!"
+Comanda exit inchide programul.
+
